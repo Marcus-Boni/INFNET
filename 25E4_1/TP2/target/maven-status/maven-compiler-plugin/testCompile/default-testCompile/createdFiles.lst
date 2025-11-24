@@ -1,0 +1,8 @@
+com\tp2\OrderServiceTest.class
+com\tp2\CustomerServiceTest$RegisterCustomerBoundaryTests.class
+com\tp2\CustomerServiceTest.class
+com\tp2\CustomerServiceTest$DeleteCustomerTests.class
+com\tp2\CustomerServiceTest$EmailValidationTests.class
+com\tp2\CustomerServiceTest$CompleteRegistrationTests.class
+com\tp2\CustomerServiceTest$UpdateCustomerTests.class
+com\tp2\MathFunctionsTest.class
