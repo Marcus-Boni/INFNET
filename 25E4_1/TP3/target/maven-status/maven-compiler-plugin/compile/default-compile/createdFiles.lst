@@ -1,0 +1,9 @@
+com\automacao\pages\CartPage.class
+com\automacao\pages\CheckoutPage.class
+com\automacao\pages\ScrollPage.class
+com\automacao\pages\ReviewPage.class
+com\automacao\pages\LoginPage.class
+com\automacao\pages\RegisterPage.class
+com\automacao\utils\ScreenshotManager.class
+com\automacao\pages\ContactPage.class
+com\automacao\utils\CookieManager.class

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Selenium WebDriver Automation Tests" parallel="false" verbose="2">
+    
+    <!-- EXERCÍCIO 3: Interação com Elementos Web -->
+    <test name="Exercise 3 - Web Elements Interaction">
+        <classes>
+            <class name="com.automacao.tests.Exercise3InteractionTest">
+                <methods>
+                    <include name="testRegisterUser"/>
+                    <include name="testContactUsForm"/>
+                    <include name="testAddProductReview"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- EXERCÍCIO 4: Navegação e Login -->
+    <test name="Exercise 4 - Login and Navigation">
+        <classes>
+            <class name="com.automacao.tests.Exercise4LoginTest">
+                <methods>
+                    <include name="testLoginWithCorrectCredentials"/>
+                    <include name="testLoginWithIncorrectCredentials"/>
+                    <include name="testLogoutUser"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- EXERCÍCIO 5: Formulários e Componentes -->
+    <test name="Exercise 5 - Forms and Components">
+        <classes>
+            <class name="com.automacao.tests.Exercise5FormTest">
+                <methods>
+                    <include name="testCompleteFormFilling"/>
+                    <include name="testRadioButtonsAndCheckboxes"/>
+                    <include name="testDropdownManipulation"/>
+                    <include name="testAlertHandling"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- EXERCÍCIO 6: Cookies e Sessões -->
+    <test name="Exercise 6 - Cookies and Sessions">
+        <classes>
+            <class name="com.automacao.tests.Exercise6CookiesTest">
+                <methods>
+                    <include name="testLoginAndSaveCookies"/>
+                    <include name="testLoadCookiesAndDirectAccess"/>
+                    <include name="testIndividualCookieManipulation"/>
+                    <include name="testCookieOptimizationBenefit"/>
+                    <include name="testCleanupCookies"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- EXERCÍCIO 7: Screenshots -->
+    <test name="Exercise 7 - Screenshots">
+        <classes>
+            <class name="com.automacao.tests.Exercise7ScreenshotsTest">
+                <methods>
+                    <include name="testFullPageScreenshots"/>
+                    <include name="testElementScreenshots"/>
+                    <include name="testFlowScreenshots"/>
+                    <include name="testErrorScreenshots"/>
+                    <include name="testSuccessScreenshots"/>
+                    <include name="testScreenshotOrganization"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- EXERCÍCIO 8: Carrinho e Checkout -->
+    <test name="Exercise 8 - Cart and Checkout">
+        <classes>
+            <class name="com.automacao.tests.Exercise8CartCheckoutTest">
+                <methods>
+                    <include name="testAddProductsToCart"/>
+                    <include name="testValidateCartQuantityAndPrices"/>
+                    <include name="testModifyCartQuantity"/>
+                    <include name="testRemoveProductFromCart"/>
+                    <include name="testCompleteCheckoutFlow"/>
+                    <include name="testEmptyCartValidation"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- EXERCÍCIO 9: Scroll e Visibilidade -->
+    <test name="Exercise 9 - Scroll and Visibility">
+        <classes>
+            <class name="com.automacao.tests.Exercise9ScrollVisibilityTest">
+                <methods>
+                    <include name="testPresenceVsVisibility"/>
+                    <include name="testScrollDown"/>
+                    <include name="testScrollUp"/>
+                    <include name="testScrollIntoView"/>
+                    <include name="testVisibilityVerification"/>
+                    <include name="testDynamicElementHandling"/>
+                    <include name="testPracticalScrollAndClick"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+</suite>
