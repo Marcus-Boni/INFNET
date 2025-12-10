@@ -1,0 +1,11 @@
+br\edu\infnet\logistica\servico\frete\FreteExpresso.class
+br\edu\infnet\logistica\servico\frete\FretePadrao.class
+br\edu\infnet\logistica\dominio\TipoFrete.class
+br\edu\infnet\logistica\servico\EtiquetaService.class
+br\edu\infnet\logistica\servico\frete\CalculadoraFrete.class
+br\edu\infnet\logistica\excecao\EntregaInvalidaException.class
+br\edu\infnet\logistica\servico\frete\FabricaCalculadoraFrete.class
+br\edu\infnet\logistica\servico\frete\FreteEconomico.class
+br\edu\infnet\logistica\servico\PromocaoService.class
+br\edu\infnet\logistica\servico\EtiquetaService$1.class
+br\edu\infnet\logistica\dominio\Entrega.class

@@ -1,0 +1,7 @@
+br\edu\infnet\logistica\servico\frete\FabricaCalculadoraFreteTest.class
+br\edu\infnet\logistica\servico\frete\FretePadraoTest.class
+br\edu\infnet\logistica\servico\EtiquetaServiceTest.class
+br\edu\infnet\logistica\servico\frete\FreteExpressoTest.class
+br\edu\infnet\logistica\servico\frete\FreteEconomicoTest.class
+br\edu\infnet\logistica\servico\PromocaoServiceTest.class
+br\edu\infnet\logistica\dominio\EntregaTest.class
