@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+engenharia-disciplinada-at,br.edu.infnet.exercicio5,QuickSort,116,0,12,0,28,0,13,0,7,0
+engenharia-disciplinada-at,br.edu.infnet.exercicio5,BubbleSort,70,0,10,0,15,0,9,0,4,0
+engenharia-disciplinada-at,br.edu.infnet.exercicio1,CalculoIMC,79,50,0,14,19,16,3,9,3,2
+engenharia-disciplinada-at,br.edu.infnet.exercicio2,MathFunctions,150,0,22,0,29,0,17,0,6,0
+engenharia-disciplinada-at,br.edu.infnet.exercicio3,CepResponse,91,0,4,0,35,0,26,0,24,0
+engenharia-disciplinada-at,br.edu.infnet.exercicio3,ViaCepClient,96,0,0,0,15,0,5,0,5,0
