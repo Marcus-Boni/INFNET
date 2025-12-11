@@ -1,6 +1,4 @@
-# Engenharia Disciplinada - AT
-
-Projeto contendo todos os exercícios de testes de software desenvolvidos em Java com Maven.
+# Engenharia de Testes de Software - AT
 
 ## Estrutura do Projeto
 
@@ -192,7 +190,3 @@ java -version
 
 ### Testes API ViaCEP timeout
 Verifique conexão internet ou aguarde alguns segundos entre execuções.
-
-## Autor
-
-Desenvolvido para a disciplina de Engenharia Disciplinada - INFNET
