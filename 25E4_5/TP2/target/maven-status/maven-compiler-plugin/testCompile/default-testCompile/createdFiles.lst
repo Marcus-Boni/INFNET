@@ -1,0 +1,8 @@
+com\automacao\base\BaseTest.class
+com\automacao\tests\Exercise3InteractionTest.class
+com\automacao\tests\Exercise7ScreenshotsTest.class
+com\automacao\tests\Exercise4LoginTest.class
+com\automacao\tests\Exercise5FormTest.class
+com\automacao\tests\Exercise6CookiesTest.class
+com\automacao\tests\Exercise8CartCheckoutTest.class
+com\automacao\tests\Exercise9ScrollVisibilityTest.class
