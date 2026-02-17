@@ -25,12 +25,18 @@ Cada disciplina possui sua própria pasta identificada pelo código da matéria:
 │   ├── 📄 TP3/
 │   └── 📄 AT/
 │
-└── 📂 25E4_5/          → Projeto de Bloco: Engenharia Disciplinada de Softwares
+├── 📂 25E4_5/          → Projeto de Bloco: Engenharia Disciplinada de Softwares
+│   ├── 📄 TP1/
+│   ├── 📄 TP2/
+│   ├── 📄 TP3/
+│   ├── 📄 TP4/
+│   ├── 📄 TP5/
+│   └── 📄 AT/
+│
+└── 📂 26E1_4/          → Engenharia de Software: Refatoração
     ├── 📄 TP1/
     ├── 📄 TP2/
     ├── 📄 TP3/
-    ├── 📄 TP4/
-    ├── 📄 TP5/
     └── 📄 AT/
 ```
 
@@ -40,15 +46,16 @@ Cada disciplina possui sua própria pasta identificada pelo código da matéria:
 
 ### 📌 Disciplinas Regulares (3 TPs + 1 AT)
 
-| Código | Nome da Disciplina | Estrutura |
-|--------|-------------------|-----------|
-| **25E4_1** | Engenharia de Testes de Software | TP1, TP2, TP3, AT |
+| Código     | Nome da Disciplina                                 | Estrutura         |
+| ---------- | -------------------------------------------------- | ----------------- |
+| **25E4_1** | Engenharia de Testes de Software                   | TP1, TP2, TP3, AT |
 | **25E4_2** | Engenharia de Software: Clean Code e Boas Práticas | TP1, TP2, TP3, AT |
+| **26E1_4** | Engenharia de Software: Refatoração                | TP1, TP2, TP3, AT |
 
 ### 📌 Projeto de Bloco (5 TPs + 1 AT)
 
-| Código | Nome do Projeto | Estrutura |
-|--------|----------------|-----------|
+| Código     | Nome do Projeto                                        | Estrutura                   |
+| ---------- | ------------------------------------------------------ | --------------------------- |
 | **25E4_5** | Projeto de Bloco: Engenharia Disciplinada de Softwares | TP1, TP2, TP3, TP4, TP5, AT |
 
 > **ℹ️ Nota:** Projetos de Bloco são trabalhos integrados que abrangem múltiplas disciplinas, por isso contêm 5 TPs ao invés de 3.
@@ -58,11 +65,13 @@ Cada disciplina possui sua própria pasta identificada pelo código da matéria:
 ## 🎯 Tipos de Atividades
 
 ### 📝 TP - Teste de Performance
+
 - **Descrição:** Trabalhos práticos progressivos que desenvolvem competências específicas da disciplina
 - **Quantidade:** 3 TPs (disciplinas regulares) ou 5 TPs (projeto de bloco)
 - **Objetivo:** Aplicação prática dos conceitos aprendidos
 
 ### 📊 AT - Assessment
+
 - **Descrição:** Avaliação final integradora da disciplina
 - **Quantidade:** 1 por disciplina/projeto
 - **Objetivo:** Demonstrar domínio completo dos conteúdos abordados
