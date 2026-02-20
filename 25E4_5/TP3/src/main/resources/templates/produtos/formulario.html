@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${titulo} + ' — CRUD TP3'">Formulário — CRUD TP3</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav>
+    <span class="brand">🛒 CRUD Produtos</span>
+    <a th:href="@{/produtos}">Listagem</a>
+    <a th:href="@{/produtos/novo}">Novo Produto</a>
+</nav>
+
+<div class="container">
+    <h1 th:text="${titulo}">Formulário</h1>
+
+    <div th:if="${erroMensagem}" class="alert alert-danger" role="alert" id="msg-erro"
+         th:text="${erroMensagem}"></div>
+
+    <div class="card">
+        <form th:action="${produto.id != null} ? @{/produtos/{id}/editar(id=${produto.id})} : @{/produtos/novo}"
+              th:object="${produto}" method="post" id="formProduto" novalidate>
+
+            <div class="form-group">
+                <label for="nome">Nome *</label>
+                <input type="text" id="nome" th:field="*{nome}" maxlength="100"
+                       th:classappend="${#fields.hasErrors('nome')} ? 'invalid'" autocomplete="off"/>
+                <span class="field-error" th:if="${#fields.hasErrors('nome')}"
+                      th:errors="*{nome}" id="erro-nome"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" th:field="*{descricao}" maxlength="500"
+                          th:classappend="${#fields.hasErrors('descricao')} ? 'invalid'"
+                          placeholder="Descrição opcional do produto…"></textarea>
+                <span class="field-error" th:if="${#fields.hasErrors('descricao')}"
+                      th:errors="*{descricao}" id="erro-descricao"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="preco">Preço (R$) *</label>
+                <input type="number" id="preco" th:field="*{preco}" step="0.01" min="0.01" max="999999.99"
+                       th:classappend="${#fields.hasErrors('preco')} ? 'invalid'"/>
+                <span class="field-error" th:if="${#fields.hasErrors('preco')}"
+                      th:errors="*{preco}" id="erro-preco"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="estoque">Estoque *</label>
+                <input type="number" id="estoque" th:field="*{estoque}" min="0" max="100000"
+                       th:classappend="${#fields.hasErrors('estoque')} ? 'invalid'"/>
+                <span class="field-error" th:if="${#fields.hasErrors('estoque')}"
+                      th:errors="*{estoque}" id="erro-estoque"></span>
+            </div>
+
+            <div style="display:flex;gap:.8rem;margin-top:1.5rem">
+                <button type="submit" class="btn btn-success" id="btnSalvar">Salvar</button>
+                <a th:href="@{/produtos}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Client-side fail-early: prevenção básica antes de submeter
+    document.getElementById('formProduto').addEventListener('submit', function(e) {
+        const nome = document.getElementById('nome').value.trim();
+        const preco = parseFloat(document.getElementById('preco').value);
+        const estoque = parseInt(document.getElementById('estoque').value);
+        if (!nome) {
+            e.preventDefault();
+            alert('O nome do produto é obrigatório.');
+            return;
+        }
+        if (isNaN(preco) || preco <= 0) {
+            e.preventDefault();
+            alert('O preço deve ser maior que zero.');
+            return;
+        }
+        if (isNaN(estoque) || estoque < 0) {
+            e.preventDefault();
+            alert('O estoque não pode ser negativo.');
+        }
+    });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Produtos — CRUD TP3</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav>
+    <span class="brand">🛒 CRUD Produtos</span>
+    <a th:href="@{/produtos}">Listagem</a>
+    <a th:href="@{/produtos/novo}">Novo Produto</a>
+    <a href="/h2-console" target="_blank">H2 Console</a>
+</nav>
+
+<div class="container">
+    <h1>Produtos Cadastrados</h1>
+
+    <!-- Alertas de feedback -->
+    <div th:if="${sucesso}" class="alert alert-success" role="alert" id="msg-sucesso"
+         th:text="${sucesso}"></div>
+    <div th:if="${erroMensagem}" class="alert alert-danger" role="alert" id="msg-erro"
+         th:text="${erroMensagem}"></div>
+
+    <!-- Busca -->
+    <form method="get" th:action="@{/produtos}" class="search-bar">
+        <input type="text" name="busca" id="campoBusca" placeholder="Buscar por nome…"
+               th:value="${busca}" maxlength="100" autocomplete="off"/>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        <a th:href="@{/produtos}" class="btn btn-secondary">Limpar</a>
+        <a th:href="@{/produtos/novo}" class="btn btn-success">+ Novo</a>
+    </form>
+
+    <div class="card">
+        <!-- Tabela vazia -->
+        <div th:if="${#lists.isEmpty(produtos)}" class="alert alert-warning">
+            Nenhum produto encontrado.
+        </div>
+
+        <table th:if="${!#lists.isEmpty(produtos)}" id="tabelaProdutos">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Preço (R$)</th>
+                    <th>Estoque</th>
+                    <th>Atualizado em</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${produtos}">
+                    <td th:text="${p.id}"></td>
+                    <td>
+                        <a th:href="@{/produtos/{id}(id=${p.id})}" th:text="${p.nome}"
+                           style="color:#1a73e8;text-decoration:none;font-weight:600"></a>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(p.preco, 1, 'POINT', 2, 'COMMA')}"></td>
+                    <td>
+                        <span th:if="${p.estoque == 0}"     class="badge badge-out"  th:text="${p.estoque}"></span>
+                        <span th:if="${p.estoque > 0 and p.estoque &lt; 5}"  class="badge badge-low"  th:text="${p.estoque}"></span>
+                        <span th:if="${p.estoque >= 5}"     class="badge badge-ok"   th:text="${p.estoque}"></span>
+                    </td>
+                    <td th:text="${#temporals.format(p.atualizadoEm, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="actions">
+                        <a th:href="@{/produtos/{id}/editar(id=${p.id})}" class="btn btn-warning btn-sm">Editar</a>
+                        <form th:action="@{/produtos/{id}/deletar(id=${p.id})}" method="post"
+                              onsubmit="return confirm('Confirma a exclusão do produto?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p style="color:#888;font-size:.8rem">Total: <span th:text="${#lists.size(produtos)}">0</span> produto(s)</p>
+</div>
+</body>
+</html>
+

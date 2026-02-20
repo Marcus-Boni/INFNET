@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Erro — CRUD TP3</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav>
+    <span class="brand">🛒 CRUD Produtos</span>
+    <a th:href="@{/produtos}">Listagem</a>
+</nav>
+<div class="container">
+    <div class="card error-box" id="paginaErro">
+        <div class="error-code" th:text="${codigo ?: 'Erro'}">Erro</div>
+        <p class="error-msg" th:text="${mensagem ?: 'Ocorreu um erro inesperado.'}" id="mensagemErro"></p>
+        <a th:href="@{/produtos}" class="btn btn-primary">← Voltar à listagem</a>
+    </div>
+</div>
+</body>
+</html>
+
