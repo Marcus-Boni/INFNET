@@ -3,16 +3,16 @@ name: TP4 CI/CD
 on:
   push:
     paths:
-      - "TP4/**"
+      - "25E4_5/TP4/**"
       - ".github/workflows/tp4-ci.yml"
   pull_request:
     paths:
-      - "TP4/**"
+      - "25E4_5/TP4/**"
       - ".github/workflows/tp4-ci.yml"
   workflow_dispatch:
     inputs:
       runSelfHosted:
-        description: "Executar também validação em runner self-hosted"
+        description: "Executar tambem validacao em runner self-hosted"
         required: false
         default: false
         type: boolean
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: TP4
+        working-directory: 25E4_5/TP4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,8 +52,8 @@ jobs:
         with:
           name: tp4-test-reports
           path: |
-            TP4/build/reports/tests/test
-            TP4/build/test-results/test
+            25E4_5/TP4/build/reports/tests/test
+            25E4_5/TP4/build/test-results/test
 
       - name: Upload coverage reports
         if: always()
@@ -61,8 +61,8 @@ jobs:
         with:
           name: tp4-jacoco-reports
           path: |
-            TP4/build/reports/jacoco/test/html
-            TP4/build/reports/jacoco/test/jacocoTestReport.xml
+            25E4_5/TP4/build/reports/jacoco/test/html
+            25E4_5/TP4/build/reports/jacoco/test/jacocoTestReport.xml
 
   self-hosted-validation:
     name: Validation (Self-Hosted)
@@ -70,7 +70,7 @@ jobs:
     runs-on: self-hosted
     defaults:
       run:
-        working-directory: TP4
+        working-directory: 25E4_5/TP4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
