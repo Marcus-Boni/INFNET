@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Detalhe do Produto — CRUD TP3</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav>
+    <span class="brand">🛒 CRUD Produtos</span>
+    <a th:href="@{/produtos}">Listagem</a>
+    <a th:href="@{/produtos/novo}">Novo Produto</a>
+</nav>
+<div class="container">
+    <h1>Detalhe do Produto</h1>
+    <div class="card">
+        <table style="width:auto;min-width:400px">
+            <tr><th style="width:140px">ID</th><td th:text="${produto.id}"></td></tr>
+            <tr><th>Nome</th><td th:text="${produto.nome}"></td></tr>
+            <tr><th>Descrição</th><td th:text="${produto.descricao ?: '—'}"></td></tr>
+            <tr><th>Preço</th>
+                <td>R$ <span th:text="${#numbers.formatDecimal(produto.preco,1,'POINT',2,'COMMA')}"></span></td></tr>
+            <tr><th>Estoque</th><td th:text="${produto.estoque}"></td></tr>
+            <tr><th>Criado em</th>
+                <td th:text="${#temporals.format(produto.criadoEm,'dd/MM/yyyy HH:mm')}"></td></tr>
+            <tr><th>Atualizado em</th>
+                <td th:text="${#temporals.format(produto.atualizadoEm,'dd/MM/yyyy HH:mm')}"></td></tr>
+        </table>
+
+        <div style="display:flex;gap:.8rem;margin-top:1.5rem">
+            <a th:href="@{/produtos/{id}/editar(id=${produto.id})}" class="btn btn-warning">Editar</a>
+            <form th:action="@{/produtos/{id}/deletar(id=${produto.id})}" method="post"
+                  onsubmit="return confirm('Confirma a exclusão deste produto?')">
+                <button type="submit" class="btn btn-danger">Excluir</button>
+            </form>
+            <a th:href="@{/produtos}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
