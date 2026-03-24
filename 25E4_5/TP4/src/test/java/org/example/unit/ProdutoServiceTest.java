@@ -120,7 +120,7 @@ class ProdutoServiceTest {
     @DisplayName("buscarPorNome com null retorna todos")
     void buscarPorNome_null_retornaTodos() {
         when(repository.findAll()).thenReturn(List.of());
-        service.buscarPorNome(null);
+        service.buscarPorNome((String) null);
         verify(repository).findAll();
     }
 
