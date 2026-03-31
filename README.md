@@ -33,6 +33,12 @@ Cada disciplina possui sua própria pasta identificada pelo código da matéria:
 │   ├── 📄 TP5/
 │   └── 📄 AT/
 │
+├── 📂 26E1_3/          → Pipelines de CI/CD e DevOps
+│   ├── 📄 TP1/
+│   ├── 📄 TP2/
+│   ├── 📄 TP3/
+│   └── 📄 AT/
+│
 └── 📂 26E1_4/          → Engenharia de Software: Refatoração
     ├── 📄 TP1/
     ├── 📄 TP2/
@@ -50,6 +56,7 @@ Cada disciplina possui sua própria pasta identificada pelo código da matéria:
 | ---------- | -------------------------------------------------- | ----------------- |
 | **25E4_1** | Engenharia de Testes de Software                   | TP1, TP2, TP3, AT |
 | **25E4_2** | Engenharia de Software: Clean Code e Boas Práticas | TP1, TP2, TP3, AT |
+| **26E1_3** | Pipelines de CI/CD e DevOps                        | TP1, TP2, TP3, AT |
 | **26E1_4** | Engenharia de Software: Refatoração                | TP1, TP2, TP3, AT |
 
 ### 📌 Projeto de Bloco (5 TPs + 1 AT)
