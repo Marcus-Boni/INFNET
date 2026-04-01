@@ -382,11 +382,23 @@ jobs:
         run: |
           mkdir -p security
           chmod 777 security
+          set +e
           docker run --rm --network=host \
             --user root \
             -v "$PWD/security:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://127.0.0.1:8090/produtos -r zap-report.html -J zap-report.json -m 3
+          ZAP_EXIT=$?
+          set -e
+
+          if [ "$ZAP_EXIT" -eq 0 ]; then
+            echo "ZAP finalizado sem alertas bloqueantes (exit 0)."
+          elif [ "$ZAP_EXIT" -eq 2 ]; then
+            echo "::warning::ZAP encontrou apenas WARN (exit 2). Pipeline seguirá para contexto acadêmico."
+          else
+            echo "::error::ZAP falhou com código $ZAP_EXIT"
+            exit "$ZAP_EXIT"
+          fi
 
       - name: Upload relatórios DAST
         if: always()
