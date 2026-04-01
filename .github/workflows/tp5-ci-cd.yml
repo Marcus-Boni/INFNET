@@ -182,12 +182,6 @@ jobs:
             -Dtp5.base.url=http://127.0.0.1:8081 \
             --no-transfer-progress
 
-      - name: Trigger opcional de deploy remoto (Render free)
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_DEV != '' }}
-        run: |
-          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_DEV }}"
-          echo "Deploy remoto dev acionado via hook."
-
       - name: Upload logs dev
         if: always()
         uses: actions/upload-artifact@v4
@@ -284,12 +278,6 @@ jobs:
             -Dtest.excludedGroups= \
             -Dtp5.base.url=http://127.0.0.1:8082 \
             --no-transfer-progress
-
-      - name: Trigger opcional de deploy remoto (Render free)
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_TEST != '' }}
-        run: |
-          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_TEST }}"
-          echo "Deploy remoto test acionado via hook."
 
       - name: Upload logs test
         if: always()
@@ -488,12 +476,6 @@ jobs:
             -Dtest.excludedGroups= \
             -Dtp5.base.url=http://127.0.0.1:8083 \
             --no-transfer-progress
-
-      - name: Trigger opcional de deploy remoto (Render free)
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_PROD != '' }}
-        run: |
-          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_PROD }}"
-          echo "Deploy remoto prod acionado via hook."
 
       - name: Upload logs prod
         if: always()

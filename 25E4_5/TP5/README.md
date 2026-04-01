@@ -61,19 +61,9 @@ Ambientes declarados no workflow:
 - `tp5-test`
 - `tp5-prod`
 
-Sugestao de protecao no GitHub Environments:
+Nao ha dependencia de secrets para executar o TP5.
 
-1. Exigir aprovadores para `tp5-prod`.
-2. Restringir branch para deploy em producao (`main` e `release/*`).
-3. Definir secrets por ambiente.
-
-Deploy remoto simples e gratuito (opcional) via hooks:
-
-- `RENDER_DEPLOY_HOOK_DEV`
-- `RENDER_DEPLOY_HOOK_TEST`
-- `RENDER_DEPLOY_HOOK_PROD`
-
-Quando nao houver hook remoto, o pipeline faz deploy ephemeral no proprio runner para validar integridade com Selenium.
+O pipeline faz deploy ephemeral no proprio runner para validar integridade com Selenium em todos os ambientes definidos no workflow.
 
 ## 4. Seguranca (SAST/DAST)
 

@@ -69,14 +69,8 @@ Ambientes declarados:
 Modelo adotado:
 
 - Deploy ephemeral no runner para validacao automatizada confiavel.
-- Trigger opcional para deploy remoto gratuito via hooks de Render.
+- Sem dependencia de secrets para execucao do trabalho.
 - Permissao `id-token: write` habilitada para federacao OIDC com cloud provider.
-
-Recomendacoes operacionais:
-
-1. Proteger `tp5-prod` com aprovacao manual.
-2. Limitar producao a branches controladas.
-3. Isolar secrets por ambiente.
 
 ## 5. Testes e Qualidade
 
