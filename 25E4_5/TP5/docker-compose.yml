@@ -1,0 +1,27 @@
+services:
+  tp5-dev:
+    build: .
+    container_name: tp5-dev
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    profiles: ["dev"]
+
+  tp5-test:
+    build: .
+    container_name: tp5-test
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+    profiles: ["test"]
+
+  tp5-prod:
+    build: .
+    container_name: tp5-prod
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    profiles: ["prod"]

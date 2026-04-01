@@ -1,0 +1,524 @@
+name: TP5 CI/CD Delivery
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "25E4_5/TP5/**"
+      - ".github/workflows/tp5-ci-cd.yml"
+      - ".github/workflows/tp5-sast-codeql.yml"
+  pull_request:
+    paths:
+      - "25E4_5/TP5/**"
+      - ".github/workflows/tp5-ci-cd.yml"
+      - ".github/workflows/tp5-sast-codeql.yml"
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      targetEnvironment:
+        description: "Ambiente alvo para deploy manual"
+        required: true
+        type: choice
+        options:
+          - all
+          - dev
+          - test
+          - prod
+        default: all
+      runDast:
+        description: "Executar DAST (OWASP ZAP)"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tp5-pipeline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Build + Tests + Coverage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 25E4_5/TP5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Contexto do job
+        run: |
+          echo "::group::[TP5][CI] Contexto"
+          echo "Workflow: $GITHUB_WORKFLOW"
+          echo "Run ID: $GITHUB_RUN_ID"
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Ref: $GITHUB_REF"
+          echo "Commit: $GITHUB_SHA"
+          echo "::endgroup::"
+
+      - name: Build + unit + integration + coverage
+        run: mvn -B clean verify --no-transfer-progress
+
+      - name: Preparar artefato executável
+        run: |
+          JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*.jar.original' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Nenhum jar de aplicação foi encontrado." >&2
+            exit 1
+          fi
+          cp "$JAR_PATH" target/tp5-app.jar
+          echo "Jar selecionado: $JAR_PATH"
+
+      - name: Upload artefatos de build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp5-build-artifacts
+          path: |
+            25E4_5/TP5/target/tp5-app.jar
+            25E4_5/TP5/target/surefire-reports
+            25E4_5/TP5/target/site/jacoco
+
+      - name: Resumo CI
+        if: always()
+        run: |
+          {
+            echo "## TP5 - Resultado CI"
+            echo "- Status: ${{ job.status }}"
+            echo "- Evento: $GITHUB_EVENT_NAME"
+            echo "- Branch/Tag: $GITHUB_REF_NAME"
+            echo "- Cobertura: relatório JaCoCo anexado como artefato"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-dev:
+    name: Deploy Dev + Selenium Post-Deploy
+    needs: ci
+    if: |
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_dispatch' || inputs.targetEnvironment == 'all' || inputs.targetEnvironment == 'dev')
+    runs-on: ubuntu-latest
+    environment:
+      name: tp5-dev
+      url: http://127.0.0.1:8081/produtos
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Download artefatos de build
+        uses: actions/download-artifact@v4
+        with:
+          name: tp5-build-artifacts
+          path: 25E4_5/TP5/target
+
+      - name: Normalizar jar de deploy
+        working-directory: 25E4_5/TP5
+        run: |
+          JAR_PATH=$(find target -type f -name 'tp5-app.jar' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
+            exit 1
+          fi
+          cp "$JAR_PATH" target/tp5-app.jar
+
+      - name: OIDC ready check
+        run: |
+          echo "::group::[TP5][DEV] OIDC"
+          if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+            echo "OIDC habilitado: token pode ser solicitado com seguranca neste job."
+          else
+            echo "OIDC indisponivel neste contexto."
+          fi
+          echo "::endgroup::"
+
+      - name: Deploy simples em dev (ephemeral)
+        working-directory: 25E4_5/TP5
+        run: |
+          mkdir -p runtime
+          nohup java -jar target/tp5-app.jar --server.port=8081 --spring.profiles.active=dev > runtime/app-dev.log 2>&1 &
+          echo $! > runtime/app-dev.pid
+
+      - name: Aguarda aplicação em dev
+        working-directory: 25E4_5/TP5
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS "http://127.0.0.1:8081/produtos" > /dev/null; then
+              echo "Aplicação dev pronta."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Aplicação dev não subiu a tempo." >&2
+          tail -n 80 runtime/app-dev.log || true
+          exit 1
+
+      - name: Selenium pós-deploy em dev
+        working-directory: 25E4_5/TP5
+        run: |
+          mvn -B test \
+            -Dtest.groups=post-deploy \
+            -Dtest.excludedGroups= \
+            -Dtp5.base.url=http://127.0.0.1:8081 \
+            --no-transfer-progress
+
+      - name: Trigger opcional de deploy remoto (Render free)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_DEV != '' }}
+        run: |
+          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_DEV }}"
+          echo "Deploy remoto dev acionado via hook."
+
+      - name: Upload logs dev
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp5-dev-logs
+          path: |
+            25E4_5/TP5/runtime/app-dev.log
+            25E4_5/TP5/target/surefire-reports
+
+      - name: Cleanup dev
+        if: always()
+        working-directory: 25E4_5/TP5
+        run: |
+          if [ -f runtime/app-dev.pid ]; then
+            kill "$(cat runtime/app-dev.pid)" || true
+          fi
+
+      - name: Resumo deploy dev
+        if: always()
+        run: |
+          {
+            echo "## TP5 - Deploy DEV"
+            echo "- Status: ${{ job.status }}"
+            echo "- Pós-deploy Selenium: executado"
+            echo "- Logs: artefato tp5-dev-logs"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-test:
+    name: Deploy Test + Selenium Post-Deploy
+    needs: deploy-dev
+    if: |
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_dispatch' || inputs.targetEnvironment == 'all' || inputs.targetEnvironment == 'test')
+    runs-on: ubuntu-latest
+    environment:
+      name: tp5-test
+      url: http://127.0.0.1:8082/produtos
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Download artefatos de build
+        uses: actions/download-artifact@v4
+        with:
+          name: tp5-build-artifacts
+          path: 25E4_5/TP5/target
+
+      - name: Normalizar jar de deploy
+        working-directory: 25E4_5/TP5
+        run: |
+          JAR_PATH=$(find target -type f -name 'tp5-app.jar' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
+            exit 1
+          fi
+          cp "$JAR_PATH" target/tp5-app.jar
+
+      - name: Deploy simples em test (ephemeral)
+        working-directory: 25E4_5/TP5
+        run: |
+          mkdir -p runtime
+          nohup java -jar target/tp5-app.jar --server.port=8082 --spring.profiles.active=test > runtime/app-test.log 2>&1 &
+          echo $! > runtime/app-test.pid
+
+      - name: Aguarda aplicação em test
+        working-directory: 25E4_5/TP5
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS "http://127.0.0.1:8082/produtos" > /dev/null; then
+              echo "Aplicação test pronta."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Aplicação test não subiu a tempo." >&2
+          tail -n 80 runtime/app-test.log || true
+          exit 1
+
+      - name: Selenium pós-deploy em test
+        working-directory: 25E4_5/TP5
+        run: |
+          mvn -B test \
+            -Dtest.groups=post-deploy \
+            -Dtest.excludedGroups= \
+            -Dtp5.base.url=http://127.0.0.1:8082 \
+            --no-transfer-progress
+
+      - name: Trigger opcional de deploy remoto (Render free)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_TEST != '' }}
+        run: |
+          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_TEST }}"
+          echo "Deploy remoto test acionado via hook."
+
+      - name: Upload logs test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp5-test-logs
+          path: |
+            25E4_5/TP5/runtime/app-test.log
+            25E4_5/TP5/target/surefire-reports
+
+      - name: Cleanup test
+        if: always()
+        working-directory: 25E4_5/TP5
+        run: |
+          if [ -f runtime/app-test.pid ]; then
+            kill "$(cat runtime/app-test.pid)" || true
+          fi
+
+      - name: Resumo deploy test
+        if: always()
+        run: |
+          {
+            echo "## TP5 - Deploy TEST"
+            echo "- Status: ${{ job.status }}"
+            echo "- Pós-deploy Selenium: executado"
+            echo "- Logs: artefato tp5-test-logs"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  dast:
+    name: DAST - OWASP ZAP Baseline
+    needs: deploy-test
+    if: |
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_dispatch' || inputs.runDast == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Download artefatos de build
+        uses: actions/download-artifact@v4
+        with:
+          name: tp5-build-artifacts
+          path: 25E4_5/TP5/target
+
+      - name: Normalizar jar de deploy
+        working-directory: 25E4_5/TP5
+        run: |
+          JAR_PATH=$(find target -type f -name 'tp5-app.jar' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
+            exit 1
+          fi
+          cp "$JAR_PATH" target/tp5-app.jar
+
+      - name: Subir app para escaneamento DAST
+        working-directory: 25E4_5/TP5
+        run: |
+          mkdir -p runtime security
+          nohup java -jar target/tp5-app.jar --server.port=8090 --spring.profiles.active=test > runtime/app-dast.log 2>&1 &
+          echo $! > runtime/app-dast.pid
+
+      - name: Aguarda app para DAST
+        working-directory: 25E4_5/TP5
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS "http://127.0.0.1:8090/produtos" > /dev/null; then
+              echo "App pronta para DAST."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "App não subiu para DAST." >&2
+          tail -n 80 runtime/app-dast.log || true
+          exit 1
+
+      - name: Executar OWASP ZAP baseline scan
+        working-directory: 25E4_5/TP5
+        run: |
+          docker run --rm --network=host \
+            -v "$PWD/security:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://127.0.0.1:8090/produtos -r zap-report.html -J zap-report.json -m 3
+
+      - name: Upload relatórios DAST
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp5-dast-reports
+          path: |
+            25E4_5/TP5/security/zap-report.html
+            25E4_5/TP5/security/zap-report.json
+            25E4_5/TP5/runtime/app-dast.log
+
+      - name: Cleanup DAST
+        if: always()
+        working-directory: 25E4_5/TP5
+        run: |
+          if [ -f runtime/app-dast.pid ]; then
+            kill "$(cat runtime/app-dast.pid)" || true
+          fi
+
+      - name: Resumo DAST
+        if: always()
+        run: |
+          {
+            echo "## TP5 - DAST"
+            echo "- Status: ${{ job.status }}"
+            echo "- Ferramenta: OWASP ZAP Baseline"
+            echo "- Relatórios: artefato tp5-dast-reports"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-prod:
+    name: Deploy Prod + Pós-Deploy
+    needs: [deploy-test, dast]
+    if: |
+      (github.event_name == 'release') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.targetEnvironment == 'all' || inputs.targetEnvironment == 'prod'))
+    runs-on: ubuntu-latest
+    environment:
+      name: tp5-prod
+      url: http://127.0.0.1:8083/produtos
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Download artefatos de build
+        uses: actions/download-artifact@v4
+        with:
+          name: tp5-build-artifacts
+          path: 25E4_5/TP5/target
+
+      - name: Normalizar jar de deploy
+        working-directory: 25E4_5/TP5
+        run: |
+          JAR_PATH=$(find target -type f -name 'tp5-app.jar' | head -n 1)
+          if [ -z "$JAR_PATH" ]; then
+            echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
+            exit 1
+          fi
+          cp "$JAR_PATH" target/tp5-app.jar
+
+      - name: OIDC ready check
+        run: |
+          echo "::group::[TP5][PROD] OIDC"
+          if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+            echo "OIDC habilitado para integração segura com provedor cloud."
+          else
+            echo "OIDC indisponível neste contexto."
+          fi
+          echo "::endgroup::"
+
+      - name: Deploy simples em prod (ephemeral)
+        working-directory: 25E4_5/TP5
+        run: |
+          mkdir -p runtime
+          nohup java -jar target/tp5-app.jar --server.port=8083 --spring.profiles.active=prod > runtime/app-prod.log 2>&1 &
+          echo $! > runtime/app-prod.pid
+
+      - name: Aguarda aplicação em prod
+        working-directory: 25E4_5/TP5
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS "http://127.0.0.1:8083/produtos" > /dev/null; then
+              echo "Aplicação prod pronta."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Aplicação prod não subiu a tempo." >&2
+          tail -n 80 runtime/app-prod.log || true
+          exit 1
+
+      - name: Selenium pós-deploy em prod
+        working-directory: 25E4_5/TP5
+        run: |
+          mvn -B test \
+            -Dtest.groups=post-deploy \
+            -Dtest.excludedGroups= \
+            -Dtp5.base.url=http://127.0.0.1:8083 \
+            --no-transfer-progress
+
+      - name: Trigger opcional de deploy remoto (Render free)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_PROD != '' }}
+        run: |
+          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_PROD }}"
+          echo "Deploy remoto prod acionado via hook."
+
+      - name: Upload logs prod
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp5-prod-logs
+          path: |
+            25E4_5/TP5/runtime/app-prod.log
+            25E4_5/TP5/target/surefire-reports
+
+      - name: Cleanup prod
+        if: always()
+        working-directory: 25E4_5/TP5
+        run: |
+          if [ -f runtime/app-prod.pid ]; then
+            kill "$(cat runtime/app-prod.pid)" || true
+          fi
+
+      - name: Resumo deploy prod
+        if: always()
+        run: |
+          {
+            echo "## TP5 - Deploy PROD"
+            echo "- Status: ${{ job.status }}"
+            echo "- Pós-deploy Selenium: executado"
+            echo "- Logs: artefato tp5-prod-logs"
+            echo "- Observação: proteja o ambiente tp5-prod com aprovação manual no GitHub Environments"
+          } >> "$GITHUB_STEP_SUMMARY"

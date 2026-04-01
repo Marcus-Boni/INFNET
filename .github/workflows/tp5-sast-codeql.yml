@@ -1,0 +1,54 @@
+name: TP5 SAST - CodeQL
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "25E4_5/TP5/**"
+      - ".github/workflows/tp5-sast-codeql.yml"
+  pull_request:
+    paths:
+      - "25E4_5/TP5/**"
+      - ".github/workflows/tp5-sast-codeql.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    name: Static Analysis (CodeQL)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+
+      - name: Build para análise
+        run: mvn -B -f 25E4_5/TP5/pom.xml -DskipTests compile --no-transfer-progress
+
+      - name: Executar análise CodeQL
+        uses: github/codeql-action/analyze@v3
+
+      - name: Resumo SAST
+        if: always()
+        run: |
+          {
+            echo "## TP5 - SAST (CodeQL)"
+            echo "- Status: ${{ job.status }}"
+            echo "- Linguagem: Java"
+            echo "- Resultado detalhado: aba Security do GitHub"
+          } >> "$GITHUB_STEP_SUMMARY"
