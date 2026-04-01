@@ -1,6 +1,6 @@
 # TP4 - Refatoracao, Integracao e CI/CD
 
-Este TP4 foi construido a partir do TP3 e evolui o sistema para um modelo mais manutenivel, com integracao entre dois canais de uso (MVC e API), build em Gradle, cobertura minima obrigatoria e pipeline no GitHub Actions.
+Este TP4 foi construido a partir do TP3 e evolui o sistema para um modelo mais manutenivel, com integracao entre dois canais de uso (MVC e API), build em Maven, cobertura minima obrigatoria e pipeline no GitHub Actions.
 
 ## 1) Principais Mudancas de Refatoracao
 
@@ -42,18 +42,18 @@ Ambos usam a mesma abstracao de catalogo (`ProdutoCatalogo`) e a mesma persisten
 - `GET /api/produtos/{id}`
 - `POST /api/produtos`
 
-## 3) Build e Testes com Gradle
+## 3) Build e Testes com Maven
 
 ### Pre-requisitos
 
 - Java 21
-- Gradle 8.7+ (ou equivalente no runner)
+- Maven 3.9+
 
 ### Executar localmente
 
 ```bash
 cd TP4
-gradle clean bootRun
+mvn spring-boot:run
 ```
 
 Aplicacao: `http://localhost:8080/produtos`
@@ -62,14 +62,14 @@ Aplicacao: `http://localhost:8080/produtos`
 
 ```bash
 cd TP4
-gradle clean check jacocoTestReport
+mvn clean verify
 ```
 
 Relatorios:
 
-- Testes: `TP4/build/reports/tests/test/index.html`
-- Cobertura JaCoCo: `TP4/build/reports/jacoco/test/html/index.html`
-- XML cobertura: `TP4/build/reports/jacoco/test/jacocoTestReport.xml`
+- Testes: `TP4/target/surefire-reports`
+- Cobertura JaCoCo (HTML): `TP4/target/site/jacoco/index.html`
+- XML cobertura: `TP4/target/site/jacoco/jacoco.xml`
 
 ### Gate de cobertura minima
 
@@ -91,8 +91,8 @@ Arquivo principal:
 
 1. Checkout do repositorio
 2. Setup Java 21
-3. Setup Gradle
-4. Build + testes + cobertura (`gradle clean check jacocoTestReport`)
+3. Cache e setup de dependencias Maven
+4. Build + testes + cobertura (`mvn -B clean verify --no-transfer-progress`)
 5. Upload de artefatos (relatorios de testes e cobertura)
 
 ## 5) Runners: Hosted vs Self-Hosted
@@ -125,8 +125,7 @@ Os testes legados do TP3 foram preservados e adaptados ao novo desenho interno.
 
 ```text
 TP4/
-  build.gradle
-  settings.gradle
+  pom.xml
   src/main/java/org/example/
     controller/
     controller/api/
@@ -144,4 +143,4 @@ TP4/
 ## 8) Notas de Depuracao
 
 - O pipeline publica artefatos de teste e cobertura para facilitar analise de falhas na aba Actions.
-- Mensagens de erro no workflow usam stacktrace para acelerar troubleshooting em CI.
+- Para diagnostico mais detalhado em CI, execute localmente `mvn -e -X clean verify`.

@@ -36,15 +36,10 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: gradle
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.7"
+          cache: maven
 
       - name: Build, test and coverage gate
-        run: gradle clean check jacocoTestReport --stacktrace
+        run: mvn -B clean verify --no-transfer-progress
 
       - name: Upload test reports
         if: always()
@@ -52,8 +47,7 @@ jobs:
         with:
           name: tp4-test-reports
           path: |
-            25E4_5/TP4/build/reports/tests/test
-            25E4_5/TP4/build/test-results/test
+            25E4_5/TP4/target/surefire-reports
 
       - name: Upload coverage reports
         if: always()
@@ -61,8 +55,8 @@ jobs:
         with:
           name: tp4-jacoco-reports
           path: |
-            25E4_5/TP4/build/reports/jacoco/test/html
-            25E4_5/TP4/build/reports/jacoco/test/jacocoTestReport.xml
+            25E4_5/TP4/target/site/jacoco
+            25E4_5/TP4/target/site/jacoco/jacoco.xml
 
   self-hosted-validation:
     name: Validation (Self-Hosted)
@@ -78,8 +72,8 @@ jobs:
       - name: Verify Java available
         run: java -version
 
-      - name: Verify Gradle available
-        run: gradle -v
+      - name: Verify Maven available
+        run: mvn -version
 
       - name: Build and test on self-hosted
-        run: gradle clean check --stacktrace
+        run: mvn -B clean verify --no-transfer-progress
