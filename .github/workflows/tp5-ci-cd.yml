@@ -380,7 +380,10 @@ jobs:
       - name: Executar OWASP ZAP baseline scan
         working-directory: 25E4_5/TP5
         run: |
+          mkdir -p security
+          chmod 777 security
           docker run --rm --network=host \
+            --user root \
             -v "$PWD/security:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://127.0.0.1:8090/produtos -r zap-report.html -J zap-report.json -m 3
