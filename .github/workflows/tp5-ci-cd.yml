@@ -78,7 +78,11 @@ jobs:
             echo "Nenhum jar de aplicação foi encontrado." >&2
             exit 1
           fi
-          cp "$JAR_PATH" target/tp5-app.jar
+          if [ "$JAR_PATH" = "target/tp5-app.jar" ] || [ "$JAR_PATH" = "./target/tp5-app.jar" ]; then
+            echo "Jar ja normalizado em $JAR_PATH"
+          else
+            cp "$JAR_PATH" target/tp5-app.jar
+          fi
           echo "Jar selecionado: $JAR_PATH"
 
       - name: Upload artefatos de build
@@ -140,7 +144,11 @@ jobs:
             echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
             exit 1
           fi
-          cp "$JAR_PATH" target/tp5-app.jar
+          if [ "$JAR_PATH" = "target/tp5-app.jar" ] || [ "$JAR_PATH" = "./target/tp5-app.jar" ]; then
+            echo "Jar ja normalizado em $JAR_PATH"
+          else
+            cp "$JAR_PATH" target/tp5-app.jar
+          fi
 
       - name: OIDC ready check
         run: |
@@ -247,7 +255,11 @@ jobs:
             echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
             exit 1
           fi
-          cp "$JAR_PATH" target/tp5-app.jar
+          if [ "$JAR_PATH" = "target/tp5-app.jar" ] || [ "$JAR_PATH" = "./target/tp5-app.jar" ]; then
+            echo "Jar ja normalizado em $JAR_PATH"
+          else
+            cp "$JAR_PATH" target/tp5-app.jar
+          fi
 
       - name: Deploy simples em test (ephemeral)
         working-directory: 25E4_5/TP5
@@ -338,7 +350,11 @@ jobs:
             echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
             exit 1
           fi
-          cp "$JAR_PATH" target/tp5-app.jar
+          if [ "$JAR_PATH" = "target/tp5-app.jar" ] || [ "$JAR_PATH" = "./target/tp5-app.jar" ]; then
+            echo "Jar ja normalizado em $JAR_PATH"
+          else
+            cp "$JAR_PATH" target/tp5-app.jar
+          fi
 
       - name: Subir app para escaneamento DAST
         working-directory: 25E4_5/TP5
@@ -435,7 +451,11 @@ jobs:
             echo "Jar tp5-app.jar nao encontrado apos download do artefato." >&2
             exit 1
           fi
-          cp "$JAR_PATH" target/tp5-app.jar
+          if [ "$JAR_PATH" = "target/tp5-app.jar" ] || [ "$JAR_PATH" = "./target/tp5-app.jar" ]; then
+            echo "Jar ja normalizado em $JAR_PATH"
+          else
+            cp "$JAR_PATH" target/tp5-app.jar
+          fi
 
       - name: OIDC ready check
         run: |
