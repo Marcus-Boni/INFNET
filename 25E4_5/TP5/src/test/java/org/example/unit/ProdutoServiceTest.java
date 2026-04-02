@@ -20,10 +20,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Testes unitários do ProdutoService.
- * Cobre todos os branches: happy path, falhas esperadas e inesperadas.
- */
 @DisplayName("ProdutoService — Testes Unitários")
 class ProdutoServiceTest {
 
@@ -37,8 +33,6 @@ class ProdutoServiceTest {
         MockitoAnnotations.openMocks(this);
         service = new ProdutoService(repository, new ProdutoValidador(), new ProdutoSanitizador(), new ProdutoMutator());
     }
-
-    // ── listarTodos ───────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("listarTodos retorna lista completa")
@@ -59,8 +53,6 @@ class ProdutoServiceTest {
         when(repository.findAll()).thenReturn(Collections.emptyList());
         assertThat(service.listarTodosComoLista()).isEmpty();
     }
-
-    // ── buscarPorId ──────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("buscarPorId retorna produto existente")
@@ -98,8 +90,6 @@ class ProdutoServiceTest {
                 .isInstanceOf(NegocioException.class);
     }
 
-    // ── buscarPorNome ─────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("buscarPorNome com nome válido delega ao repositório")
     void buscarPorNome_valido() {
@@ -132,8 +122,6 @@ class ProdutoServiceTest {
                 .isInstanceOf(NegocioException.class)
                 .hasMessageContaining("longo");
     }
-
-    // ── salvar ────────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("salvar produto válido persiste e retorna entidade")
@@ -194,8 +182,6 @@ class ProdutoServiceTest {
                 .hasMessageContaining("negativo");
     }
 
-    // ── atualizar ─────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("atualizar produto existente com dados válidos persiste alterações")
     void atualizar_sucesso() {
@@ -218,8 +204,6 @@ class ProdutoServiceTest {
         assertThatThrownBy(() -> service.atualizar(99L, novoProduto("X", "1.00", 0)))
                 .isInstanceOf(ProdutoNotFoundException.class);
     }
-
-    // ── deletar ───────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("deletar produto existente chama repository.delete")
@@ -249,8 +233,6 @@ class ProdutoServiceTest {
         verify(repository, never()).findById(anyLong());
     }
 
-    // ── Falhas inesperadas (simulação) ────────────────────────────────────────
-
     @Test
     @DisplayName("listarTodos propaga RuntimeException do repositório")
     void listarTodos_falhaRepositorio() {
@@ -268,8 +250,6 @@ class ProdutoServiceTest {
         assertThatThrownBy(() -> service.salvar(p))
                 .isInstanceOf(RuntimeException.class);
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static Produto novoProduto(String nome, String preco, int estoque) {
         return new Produto(nome, "Descrição", new BigDecimal(preco), estoque);

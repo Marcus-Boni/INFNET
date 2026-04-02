@@ -21,12 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Fuzz Testing — envia entradas aleatórias/maliciosas e valida que:
- * 1. O sistema nunca retorna 5xx inesperado para entradas inválidas de usuário.
- * 2. Mensagens de erro não expõem stacktraces ou informações internas.
- * 3. Payloads XSS/SQL-injection são sanitizados ou rejeitados.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -41,40 +35,30 @@ class FuzzTest {
 
     private static final Random RND = new Random(42L);
 
-    // ── Provedores de dados fuzzy ─────────────────────────────────────────────
-
     static Stream<String> payloadsMaliciosos() {
         return Stream.of(
-                // XSS
                 "<script>alert('xss')</script>",
                 "<img src=x onerror=alert(1)>",
                 "javascript:alert(document.cookie)",
                 "<svg onload=alert(1)>",
                 "'\"><script>alert(1)</script>",
-                // SQL Injection
                 "' OR '1'='1",
                 "'; DROP TABLE produtos; --",
                 "1 UNION SELECT * FROM produtos --",
                 "admin'--",
-                // Strings longas
                 "A".repeat(1000),
                 "B".repeat(10000),
-                // Caracteres especiais e unicode
                 "\u0000\u0001\u0002",
                 "あいうえお",
                 "中文测试",
                 "مرحبا بالعالم",
                 "𝓕𝓪𝓷𝓬𝔂 𝓣𝓮𝔁𝓽",
-                // Nulos e espaços
                 "   ",
                 "\t\n\r",
-                // Path traversal
                 "../../../etc/passwd",
                 "..\\..\\windows\\system32",
-                // Entidades HTML
                 "&lt;script&gt;alert(1)&lt;/script&gt;",
                 "&#x3C;script&#x3E;",
-                // CRLF Injection
                 "nome\r\nSet-Cookie: malicioso=true"
         );
     }
@@ -95,8 +79,6 @@ class FuzzTest {
         );
     }
 
-    // ── Testes de nome com payload malicioso ──────────────────────────────────
-
     @ParameterizedTest(name = "[{index}] POST /novo nome malicioso: {0}")
     @MethodSource("payloadsMaliciosos")
     @DisplayName("POST /produtos/novo com nome malicioso: nunca causa 5xx nem expõe internals")
@@ -109,7 +91,6 @@ class FuzzTest {
                 .andReturn();
 
         int status = result.getResponse().getStatus();
-        // Deve ser 200 (form com erros) ou 302 (redirect sucesso) — NUNCA 500
         assertThat(status).as("Status não deve ser 5xx para nome malicioso: " + payload)
                 .isBetween(200, 399);
 
@@ -120,8 +101,6 @@ class FuzzTest {
                 .doesNotContainIgnoringCase("NullPointerException")
                 .doesNotContainIgnoringCase("Exception in thread");
     }
-
-    // ── Testes de preço fuzzy ──────────────────────────────────────────────────
 
     @ParameterizedTest(name = "[{index}] POST /novo preço fuzzy: ''{0}''")
     @MethodSource("precosFuzzy")
@@ -139,13 +118,10 @@ class FuzzTest {
                 .isBetween(200, 399);
     }
 
-    // ── Testes de ID fuzzy ────────────────────────────────────────────────────
-
     @ParameterizedTest(name = "[{index}] GET /produtos/{0}")
     @MethodSource("idsFuzzy")
     @DisplayName("GET /produtos/{id} com IDs maliciosos: nunca causa 5xx")
     void fuzz_idMalicioso(String id) throws Exception {
-        // IDs nao-numericos retornam 400 (type mismatch) ou 404 — nunca 5xx
         int status = mvc.perform(get("/produtos/" + id))
                 .andReturn().getResponse().getStatus();
 
@@ -153,8 +129,6 @@ class FuzzTest {
                 .as("ID malicioso '%s' nao deve causar 5xx".formatted(id))
                 .isNotEqualTo(500);
     }
-
-    // ── Testes de descrição com payload malicioso ─────────────────────────────
 
     @ParameterizedTest(name = "[{index}] POST /novo descrição maliciosa")
     @MethodSource("payloadsMaliciosos")
@@ -172,12 +146,9 @@ class FuzzTest {
                 .isBetween(200, 399);
     }
 
-    // ── Teste de sobrecarga (flood de requisições) ────────────────────────────
-
     @Test
     @DisplayName("Sistema responde corretamente sob 100 requisições simultâneas de listagem")
     void fuzz_sobrecarga_listagem() throws Exception {
-        // Popula banco com alguns produtos
         for (int i = 0; i < 10; i++) {
             repository.save(new Produto("Produto " + i, "Desc", new BigDecimal("10.00"), i));
         }
@@ -187,8 +158,6 @@ class FuzzTest {
                     .andExpect(status().isOk());
         }
     }
-
-    // ── Fuzz de busca ─────────────────────────────────────────────────────────
 
     @ParameterizedTest(name = "[{index}] GET /produtos?busca={0}")
     @MethodSource("payloadsMaliciosos")
@@ -209,8 +178,6 @@ class FuzzTest {
         }
     }
 
-    // ── Fuzz de campos de edição ───────────────────────────────────────────────
-
     @Test
     @DisplayName("POST /produtos/{id}/editar com payload XSS no nome é sanitizado")
     void fuzz_edicaoXSS_sanitizado() throws Exception {
@@ -224,15 +191,12 @@ class FuzzTest {
                         .param("estoque", "1"))
                 .andReturn();
 
-        // Se foi salvo, verifica que o nome foi sanitizado (sem tags)
         repository.findById(salvo.getId()).ifPresent(p -> {
             assertThat(p.getNome())
                     .doesNotContain("<script>")
                     .doesNotContain("</script>");
         });
     }
-
-    // ── Fuzz aleatório ────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("50 requisições POST com campos totalmente aleatórios: nunca causa 5xx")

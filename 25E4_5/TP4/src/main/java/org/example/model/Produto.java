@@ -51,7 +51,6 @@ public class Produto {
         this.atualizadoEm = LocalDateTime.now();
     }
 
-    // Constructors
     public Produto() {}
 
     public Produto(String nome, String descricao, BigDecimal preco, Integer estoque) {
@@ -61,7 +60,6 @@ public class Produto {
         this.estoque = estoque;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

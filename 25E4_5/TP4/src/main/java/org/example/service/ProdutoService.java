@@ -15,10 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Serviço de negócio para Produto.
- * Aplica fail-early: valida precondições antes de executar qualquer operação.
- */
 @Service
 @Transactional
 public class ProdutoService implements ProdutoCatalogo {

@@ -9,10 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-/**
- * Tratador global de exceções — fail-gracefully centralizado.
- * Nunca expõe stacktraces ou detalhes internos ao usuário.
- */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -32,7 +28,7 @@ public class GlobalExceptionHandler {
         return "erro";
     }
 
-    /** Parametro de path com tipo invalido (ex: /produtos/abc em vez de /produtos/1). */
+    
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleTypeMismatch(MethodArgumentTypeMismatchException ex, Model model) {
@@ -44,7 +40,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGeneric(Exception ex, Model model) {
-        // Fail-gracefully: registra internamente mas não expõe detalhes ao usuário
         model.addAttribute("codigo", 500);
         model.addAttribute("mensagem", "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
         return "erro";

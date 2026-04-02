@@ -22,9 +22,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Testes unitários do ProdutoController cobrindo todos os branches.
- */
 @DisplayName("ProdutoController — Testes Unitários")
 class ProdutoControllerTest {
 
@@ -43,8 +40,6 @@ class ProdutoControllerTest {
         model = new ConcurrentModel();
         redirect = new RedirectAttributesModelMap();
     }
-
-    // ── listar ────────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("GET /produtos sem busca retorna view lista com todos os produtos")
@@ -77,8 +72,6 @@ class ProdutoControllerTest {
         assertThat(model.asMap()).containsKey("erroMensagem");
     }
 
-    // ── novoForm ──────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /produtos/novo retorna formulário com produto vazio")
     void novoForm_retornaFormulario() {
@@ -86,8 +79,6 @@ class ProdutoControllerTest {
         assertThat(view).isEqualTo("produtos/formulario");
         assertThat(model.asMap().get("produto")).isInstanceOf(Produto.class);
     }
-
-    // ── salvar ────────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("POST /produtos/novo com erros de validação fica no formulário")
@@ -124,8 +115,6 @@ class ProdutoControllerTest {
         assertThat(model.asMap()).containsKey("erroMensagem");
     }
 
-    // ── editarForm ────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /produtos/{id}/editar com ID válido retorna formulário")
     void editarForm_valido() {
@@ -145,8 +134,6 @@ class ProdutoControllerTest {
         assertThat(view).isEqualTo("redirect:/produtos");
         assertThat(redirect.getFlashAttributes()).containsKey("erroMensagem");
     }
-
-    // ── atualizar ─────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("POST /produtos/{id}/editar válido redireciona com sucesso")
@@ -170,8 +157,6 @@ class ProdutoControllerTest {
         assertThat(view).isEqualTo("produtos/formulario");
     }
 
-    // ── deletar ───────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("POST /produtos/{id}/deletar com sucesso redireciona com mensagem")
     void deletar_sucesso() {
@@ -192,8 +177,6 @@ class ProdutoControllerTest {
         assertThat(redirect.getFlashAttributes()).containsKey("erroMensagem");
     }
 
-    // ── detalhe ───────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /produtos/{id} com ID válido retorna view de detalhe")
     void detalhe_valido() {
@@ -210,8 +193,6 @@ class ProdutoControllerTest {
         String view = controller.detalhe(id, model, redirect);
         assertThat(view).isEqualTo("redirect:/produtos");
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static Produto produto() {
         Produto p = new Produto("Produto Teste", "Desc", new BigDecimal("9.99"), 10);

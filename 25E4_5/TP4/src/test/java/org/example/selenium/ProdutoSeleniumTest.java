@@ -14,10 +14,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Testes de interface com HtmlUnitDriver (headless — sem browser instalado).
- * Exercita componentes da UI: formulários, tabelas, alertas e mensagens de feedback.
- */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("Selenium (HtmlUnit) — Testes de Interface")
 class ProdutoSeleniumTest {
@@ -30,7 +26,7 @@ class ProdutoSeleniumTest {
 
     @BeforeEach
     void setUp() {
-        driver = new HtmlUnitDriver(true); // JS habilitado
+        driver = new HtmlUnitDriver(true);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         baseUrl = "http://localhost:" + port;
     }
@@ -39,8 +35,6 @@ class ProdutoSeleniumTest {
     void tearDown() {
         if (driver != null) driver.quit();
     }
-
-    // ── Listagem ──────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("Página de listagem carrega com título correto")
@@ -67,8 +61,6 @@ class ProdutoSeleniumTest {
         assertThat(botaoNovo.getAttribute("href")).contains("/produtos/novo");
     }
 
-    // ── Formulário ────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("Formulário de novo produto tem campos obrigatórios")
     void form_camposPresentes() {
@@ -81,12 +73,9 @@ class ProdutoSeleniumTest {
         assertThat(driver.findElement(By.id("btnSalvar"))).isNotNull();
     }
 
-    // ── Fluxo CRUD completo ───────────────────────────────────────────────────
-
     @Test
     @DisplayName("Fluxo completo: cadastrar → listar → editar → deletar")
     void fluxoCRUD_completo() {
-        // CRIAR
         driver.get(baseUrl + "/produtos/novo");
         driver.findElement(By.id("nome")).sendKeys("Produto Selenium");
         driver.findElement(By.id("descricao")).sendKeys("Criado via Selenium");
@@ -94,12 +83,10 @@ class ProdutoSeleniumTest {
         driver.findElement(By.id("estoque")).sendKeys("7");
         driver.findElement(By.id("btnSalvar")).click();
 
-        // Verificar redirect para lista e produto presente
         assertThat(driver.getCurrentUrl()).contains("/produtos");
         String paginaLista = driver.getPageSource();
         assertThat(paginaLista).contains("Produto Selenium");
 
-        // EDITAR — encontra link de edição do produto criado
         WebElement linkEditar = driver.findElements(By.cssSelector(".btn-warning"))
                 .stream().findFirst().orElseThrow(() -> new AssertionError("Botão Editar não encontrado"));
         linkEditar.click();
@@ -110,7 +97,6 @@ class ProdutoSeleniumTest {
 
         assertThat(driver.getPageSource()).contains("Produto Editado");
 
-        // DELETAR
         WebElement formDelete = driver.findElements(By.cssSelector("form"))
                 .stream()
                 .filter(f -> {
@@ -120,13 +106,10 @@ class ProdutoSeleniumTest {
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Formulário de exclusão não encontrado"));
 
-        // HtmlUnit não exibe diálogos confirm — submete diretamente
         formDelete.submit();
 
         assertThat(driver.getCurrentUrl()).contains("/produtos");
     }
-
-    // ── Validação de campos ────────────────────────────────────────────────────
 
     @Test
     @DisplayName("Formulário com nome em branco exibe mensagem de erro")
@@ -134,29 +117,23 @@ class ProdutoSeleniumTest {
         driver.get(baseUrl + "/produtos/novo");
         driver.findElement(By.id("preco")).sendKeys("10.00");
         driver.findElement(By.id("estoque")).sendKeys("1");
-        // Submete sem preencher nome via URL direta (contorna validação JS)
         driver.get(baseUrl + "/produtos/novo");
         ((JavascriptExecutor) driver).executeScript(
                 "document.getElementById('formProduto').submit()");
 
         String src = driver.getPageSource();
-        // Deve permanecer no formulário (não houve redirect)
         assertThat(driver.getCurrentUrl()).contains("/produtos/novo");
     }
-
-    // ── Campo de busca ────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("Campo de busca filtra produtos pelo nome")
     void busca_filtraPorNome() {
-        // Cria produto via API interna
         driver.get(baseUrl + "/produtos/novo");
         driver.findElement(By.id("nome")).sendKeys("Roteador WiFi");
         driver.findElement(By.id("preco")).sendKeys("350.00");
         driver.findElement(By.id("estoque")).sendKeys("4");
         driver.findElement(By.id("btnSalvar")).click();
 
-        // Busca
         driver.get(baseUrl + "/produtos");
         driver.findElement(By.id("campoBusca")).sendKeys("Roteador");
         driver.findElement(By.cssSelector(".search-bar button[type=submit]")).click();
@@ -174,8 +151,6 @@ class ProdutoSeleniumTest {
         assertThat(driver.getPageSource()).contains("Nenhum produto encontrado");
     }
 
-    // ── Entradas inválidas via UI ─────────────────────────────────────────────
-
     @ParameterizedTest(name = "[{index}] Preço inválido: {0}")
     @ValueSource(strings = {"abc", "0", "-5"})
     @DisplayName("Formulário rejeita preços inválidos e permanece na página")
@@ -186,29 +161,22 @@ class ProdutoSeleniumTest {
         driver.findElement(By.id("estoque")).sendKeys("1");
         driver.findElement(By.id("btnSalvar")).click();
 
-        // Deve ter permanecido no formulário ou ido para lista com erro
         String url = driver.getCurrentUrl();
         assertThat(url.contains("novo") || url.contains("produtos")).isTrue();
     }
-
-    // ── Página de erro ────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("Acesso a produto inexistente mostra mensagem amigável sem stacktrace")
     void erro_produtoNaoEncontrado() {
         driver.get(baseUrl + "/produtos/99999");
-        // Após redirect, deve estar na listagem com flash de erro
         String src = driver.getPageSource();
         assertThat(src).doesNotContainIgnoringCase("NullPointerException");
         assertThat(src).doesNotContainIgnoringCase("at org.example");
     }
 
-    // ── Tabela de listagem ────────────────────────────────────────────────────
-
     @Test
     @DisplayName("Tabela de listagem exibe cabeçalhos corretos")
     void tabela_cabecalhos() {
-        // Cria produto para garantir que tabela apareça
         driver.get(baseUrl + "/produtos/novo");
         driver.findElement(By.id("nome")).sendKeys("ProdutoTabela");
         driver.findElement(By.id("preco")).sendKeys("1.00");

@@ -19,10 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Testes de integração: exercitam o stack completo (Controller → Service → Repository → H2).
- * Cobrem happy paths, erros esperados e entradas inválidas.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -34,8 +30,6 @@ class ProdutoCrudIntegrationTest {
 
     @Autowired
     private ProdutoRepository repository;
-
-    // ── Listagem ──────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("GET /produtos retorna status 200 e página de listagem")
@@ -54,8 +48,6 @@ class ProdutoCrudIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Notebook")));
     }
-
-    // ── Cadastro ──────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("GET /produtos/novo retorna formulário vazio")
@@ -100,8 +92,6 @@ class ProdutoCrudIntegrationTest {
                 .andExpect(view().name("produtos/formulario"));
     }
 
-    // ── Edição ────────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /produtos/{id}/editar com ID existente retorna formulário preenchido")
     void editarForm_valido() throws Exception {
@@ -139,8 +129,6 @@ class ProdutoCrudIntegrationTest {
         assertThat(atualizado.getNome()).isEqualTo("Nome Novo");
     }
 
-    // ── Exclusão ──────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("POST /produtos/{id}/deletar remove produto e redireciona")
     void deletar_valido() throws Exception {
@@ -162,8 +150,6 @@ class ProdutoCrudIntegrationTest {
                 .andExpect(redirectedUrl("/produtos"));
     }
 
-    // ── Detalhe ───────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /produtos/{id} retorna detalhe do produto")
     void detalhe_valido() throws Exception {
@@ -182,8 +168,6 @@ class ProdutoCrudIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/produtos"));
     }
-
-    // ── Busca ─────────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("GET /produtos?busca=X retorna apenas produtos correspondentes")

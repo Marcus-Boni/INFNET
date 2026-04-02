@@ -17,13 +17,13 @@
 <div class="container">
     <h1>Produtos Cadastrados</h1>
 
-    <!-- Alertas de feedback -->
+    
     <div th:if="${sucesso}" class="alert alert-success" role="alert" id="msg-sucesso"
          th:text="${sucesso}"></div>
     <div th:if="${erroMensagem}" class="alert alert-danger" role="alert" id="msg-erro"
          th:text="${erroMensagem}"></div>
 
-    <!-- Busca -->
+    
     <form method="get" th:action="@{/produtos}" class="search-bar">
         <input type="text" name="busca" id="campoBusca" placeholder="Buscar por nome…"
                th:value="${busca}" maxlength="100" autocomplete="off"/>
@@ -33,7 +33,7 @@
     </form>
 
     <div class="card">
-        <!-- Tabela vazia -->
+        
         <div th:if="${#lists.isEmpty(produtos)}" class="alert alert-warning">
             Nenhum produto encontrado.
         </div>

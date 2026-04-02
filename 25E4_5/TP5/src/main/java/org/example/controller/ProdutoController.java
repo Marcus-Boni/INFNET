@@ -13,10 +13,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-/**
- * Controller MVC para operações CRUD de Produto via interface web Thymeleaf.
- * Aplica fail-gracefully: captura exceções e apresenta mensagens amigáveis.
- */
 @Controller
 @RequestMapping("/produtos")
 public class ProdutoController {
@@ -26,8 +22,6 @@ public class ProdutoController {
     public ProdutoController(ProdutoService service) {
         this.service = service;
     }
-
-    // ── LISTAGEM ──────────────────────────────────────────────────────────────
 
     @GetMapping
     public String listar(@RequestParam(required = false) String busca, Model model) {
@@ -43,8 +37,6 @@ public class ProdutoController {
         }
         return "produtos/lista";
     }
-
-    // ── CADASTRO ──────────────────────────────────────────────────────────────
 
     @GetMapping("/novo")
     public String novoForm(Model model) {
@@ -72,8 +64,6 @@ public class ProdutoController {
             return "produtos/formulario";
         }
     }
-
-    // ── EDIÇÃO ────────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}/editar")
     public String editarForm(@PathVariable Long id, Model model, RedirectAttributes redirect) {
@@ -108,8 +98,6 @@ public class ProdutoController {
         }
     }
 
-    // ── EXCLUSÃO ──────────────────────────────────────────────────────────────
-
     @PostMapping("/{id}/deletar")
     public String deletar(@PathVariable Long id, RedirectAttributes redirect) {
         try {
@@ -120,8 +108,6 @@ public class ProdutoController {
         }
         return "redirect:/produtos";
     }
-
-    // ── DETALHES ──────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
     public String detalhe(@PathVariable Long id, Model model, RedirectAttributes redirect) {
